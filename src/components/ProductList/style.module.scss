@@ -1,0 +1,13 @@
+.productList {
+  margin-top: 32px;
+
+  @media (min-width: 771px) {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (min-width: 999px){
+    justify-content: stretch;
+  }
+}
