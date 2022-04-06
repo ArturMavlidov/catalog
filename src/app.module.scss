@@ -7,10 +7,14 @@
 }
 
 .title {
-  margin: 0 0 24px 4px;
+  margin: 16px 0 24px 4px;
 
   font-size: 32px;
   font-weight: 700;
+
+  @media (min-width: 771px) {
+    margin-top: 32px;
+  }
 }
 
 .subtitle {
@@ -20,7 +24,7 @@
 }
 
 .label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   cursor: pointer;
 

@@ -1,44 +1,70 @@
-import React, { FC, useEffect, useState } from "react";
-import axios from "axios";
-import {IProduct} from './types'
+import { FC, useEffect, useState } from "react";
+import { IProduct } from "./types";
+import { getProducts } from "./api";
 
-import { ProductList } from "./components";
+import { Preloader, ProductList } from "./components";
 
-import styles from "./assets/scss/app.module.scss";
+import styles from "./app.module.scss";
+import { useOnUpdate } from "./hooks";
 
 const App: FC = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
-  const [isSortByQuantity, setIsSortByQuantity] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
 
   const handleInputChange = () => {
-    setIsSortByQuantity(!isSortByQuantity);
-  }
+    setOnlyAvailable(!onlyAvailable);
+  };
+
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const { data } = await getProducts();
+      setProducts(data.data.products);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    axios
-      .get("https://artisant.io/api/products")
-      .then(({ data }) => setProducts(data.data.products));
+    getData();
   }, []);
 
-  useEffect(() => {
-    if (!isSortByQuantity) return;
-
-    const sortedProducts = products.sort((a, b) =>  b.quantity_available - a.quantity_available)
-    setProducts(sortedProducts);
-  }, [isSortByQuantity])
-
+  // кастомных хук, который не будет вызываться при первом рендере
+  useOnUpdate(() => {
+    if (onlyAvailable) {
+      const filteredProducts = products.filter((item) =>
+        Boolean(item.quantity_available)
+      );
+      setProducts(filteredProducts);
+    } else {
+      // Новый запрос вместо хранения в кэше старых данных, т.к. данные могут измениться в любой момент времени
+      getData();
+    }
+  }, [onlyAvailable]);
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Explore</h1>
       <h2 className={styles.subtitle}>Buy and sell digital fashion NFT art</h2>
+      {loading ? (
+        <Preloader />
+      ) : (
+        <>
+          <label className={styles.label}>
+            <input
+              type="checkbox"
+              checked={onlyAvailable}
+              onChange={handleInputChange}
+            />
+            Filter by quantity available
+          </label>
 
-      <label className={styles.label}>
-        <input type="checkbox" checked={isSortByQuantity} onChange={handleInputChange}/>
-        Sort by quantity
-      </label>
-
-      <ProductList products={products} />
+          <ProductList products={products} />
+        </>
+      )}
     </div>
   );
 };

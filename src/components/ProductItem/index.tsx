@@ -1,15 +1,15 @@
 import { FC, memo } from "react";
-import { IProduct } from '../../types';
+import { IProduct } from "../../types";
 
-import styles from './style.module.scss'
+import styles from "./style.module.scss";
 
 interface ProductItemProps {
-  product: IProduct
+  product: IProduct;
 }
 
 const ProductItem: FC<ProductItemProps> = memo(({ product }) => {
   return (
-    <div className={styles.product}>
+    <li className={styles.product}>
       <div className={styles.productTop}>
         <div className={styles.productAuthor}>
           created by <br /> <span>{product.created_by.display_name}</span>
@@ -20,19 +20,17 @@ const ProductItem: FC<ProductItemProps> = memo(({ product }) => {
         <div className={styles.productAvaliable}>
           available
           <span>
-            {product.quantity_available} of {product.quantity_nfts_created}
+            {product.quantity_available} of {product.quantity}
           </span>
         </div>
-        <div className={styles.productPrice}>
-          price
-          <span>
-           {
-            product.latest_price ? `${product.latest_price} ETH` : 'None'
-           }
-          </span>
-        </div>
+        {product.initial_price && (
+          <div className={styles.productPrice}>
+            price
+            <span>{product.initial_price} ETH</span>
+          </div>
+        )}
       </div>
-    </div>
+    </li>
   );
 });
 
